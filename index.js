@@ -43,12 +43,26 @@ async function run() {
       res.send(courses);
     })
 
+    //get a user
+    app.get('/user/:email', async (req, res) => {
+      const email  = req.params.email;
+      const query = {email : email};
+      const user = await userCollection.findOne(query);
+      res.send(user);
+    })
+
     //getting an user's admin status
     app.get('/admin/:email', async (req, res) => {
       const email = req.params.email;
       const user = await userCollection.findOne({ email: email });
       const isAdmin = user.role === 'admin';
       res.send({ admin: isAdmin });
+    })
+
+    app.post('/course', async (req, res) => {
+      const course = req.body;
+      const result = await courseCollection.insertOne(course);
+      res.send(result);
     })
 
     //put route for users: upsert users
