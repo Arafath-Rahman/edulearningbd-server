@@ -1,6 +1,6 @@
 const express = require("express");
 const app = express();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
 require("dotenv").config();
@@ -41,6 +41,32 @@ async function run() {
     app.get('/course', async (req, res) => {
       const courses = await courseCollection.find().toArray();
       res.send(courses);
+    })
+
+    //get a course
+    app.get('/course/:id', async (req, res) => {
+      const id  = req.params.id;
+      const query = {_id : ObjectId(id)};
+      const course = await courseCollection.findOne(query);
+      res.send(course);
+    })
+
+    //edit a course
+    app.patch('/course/edit/:id', async (req, res) => {
+      const id  = req.params.id;
+      const {link} = req.query;
+      console.log(req.query);
+      const filter = {_id : ObjectId(id)};
+      const course = await courseCollection.findOne(filter);
+      const newContent = [...course.content, link];
+      console.log(newContent);
+      const updatedDoc = {
+        $set: {
+          content: newContent,
+        }
+      }
+      const result = await courseCollection.updateOne(filter, updatedDoc);
+      res.send(result);
     })
 
     //get a user
